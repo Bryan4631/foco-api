@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_24_000004) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_24_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_24_000004) do
     t.check_constraint "hora_fin::text > hora_inicio::text", name: "bloques_orden_check"
     t.check_constraint "hora_fin::text ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'::text", name: "bloques_fin_check"
     t.check_constraint "hora_inicio::text ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'::text", name: "bloques_inicio_check"
+  end
+
+  create_table "revoked_tokens", force: :cascade do |t|
+    t.string "jti", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expires_at"], name: "index_revoked_tokens_on_expires_at"
+    t.index ["jti"], name: "index_revoked_tokens_on_jti", unique: true
   end
 
   create_table "tareas", force: :cascade do |t|
