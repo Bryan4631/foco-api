@@ -1,62 +1,52 @@
 module Api
   module V1
     class BloquesController < BaseController
-      before_action :set_bloque, only: %i[show update destroy]
+      before_action :set_bloque, only: [:show, :update, :destroy]
 
-      # GET /api/v1/bloques?dia_semana=1&area_id=2
       def index
-        bloques = current_user.bloques.includes(:area)
-        bloques = bloques.where(dia_semana: params[:dia_semana]) if params[:dia_semana].present?
-        bloques = bloques.where(area_id: params[:area_id]) if params[:area_id].present?
-        render json: bloques.order(:dia_semana, :hora_inicio).map { |b| bloque_json(b) }
+        bloques = Bloque.joins(:area).where(areas: { user_id: current_user.id }).order(dia_semana: :asc)
+        render json: bloques, status: :ok
       end
 
-      # GET /api/v1/bloques/:id
-      def show
-        render json: bloque_json(@bloque)
-      end
-
-      # POST /api/v1/bloques   (requiere area_id de un área tuya)
       def create
-        area = current_user.areas.find_by(id: params[:area_id])
-        return render_field_error(:area_id, "debe ser un área tuya") unless area
+        area = current_user.areas.find(params[:bloque][:area_id])
+        bloque = area.bloques.new(bloque_params.except(:area_id))
 
-        bloque = area.bloques.create!(bloque_params)
-        render json: bloque_json(bloque), status: :created
-      end
-
-      # PATCH/PUT /api/v1/bloques/:id
-      def update
-        @bloque.assign_attributes(bloque_params)
-        if params.key?(:area_id)
-          area = current_user.areas.find_by(id: params[:area_id])
-          return render_field_error(:area_id, "debe ser un área tuya") unless area
-
-          @bloque.area = area
+        if bloque.save
+          render json: bloque, status: :created
+        else
+          render json: { errors: bloque.errors.messages }, status: :unprocessable_entity
         end
-        @bloque.save!
-        render json: bloque_json(@bloque)
+      rescue ActiveRecord::RecordNotFound
+        render json: { errors: { area: ["no válida o no te pertenece"] } }, status: :unprocessable_entity
       end
 
-      # DELETE /api/v1/bloques/:id
+      def update
+        if params[:bloque][:area_id].present?
+          current_user.areas.find(params[:bloque][:area_id])
+        end
+        if @bloque.update(bloque_params)
+          render json: @bloque, status: :ok
+        else
+          render json: { errors: @bloque.errors.messages }, status: :unprocessable_entity
+        end
+      end
+
       def destroy
-        @bloque.destroy!
+        @bloque.destroy
         head :no_content
       end
 
       private
 
       def set_bloque
-        @bloque = current_user.bloques.find(params[:id])
+        @bloque = Bloque.joins(:area).where(areas: { user_id: current_user.id }).find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: 'Bloque no encontrado' }, status: :not_found
       end
 
       def bloque_params
-        params.permit(:titulo, :dia_semana, :hora_inicio, :hora_fin)
-      end
-
-      def bloque_json(bloque)
-        bloque.as_json(only: %i[id titulo dia_semana hora_inicio hora_fin area_id created_at updated_at])
-              .merge("area" => bloque.area.as_json(only: %i[id nombre tipo color]))
+        params.require(:bloque).permit(:titulo, :dia_semana, :hora_inicio, :hora_fin, :area_id)
       end
     end
   end
