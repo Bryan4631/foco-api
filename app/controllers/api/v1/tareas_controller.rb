@@ -1,64 +1,67 @@
 module Api
   module V1
     class TareasController < BaseController
-      before_action :set_tarea, only: %i[show update destroy]
+      before_action :set_tarea, only: [:show, :update, :destroy]
 
-      # GET /api/v1/tareas?area_id=1&estado=pendiente&prioridad=alta
+      # GET /api/v1/tareas
       def index
-        tareas = current_user.tareas.includes(:area)
-        tareas = tareas.where(area_id: params[:area_id]) if params[:area_id].present?
-        tareas = tareas.where(estado: params[:estado]) if params[:estado].present?
-        tareas = tareas.where(prioridad: params[:prioridad]) if params[:prioridad].present?
-        tareas = tareas.order(Arel.sql("tareas.fecha_limite ASC NULLS LAST"), :id)
-        render json: tareas.map { |t| tarea_json(t) }
+        tareas = Tarea.joins(:area).where(areas: { user_id: current_user.id }).order(created_at: :desc)
+        render json: tareas, status: :ok
       end
 
       # GET /api/v1/tareas/:id
       def show
-        render json: tarea_json(@tarea)
+        render json: @tarea, status: :ok
       end
 
-      # POST /api/v1/tareas   (requiere area_id de un área tuya)
+      # POST /api/v1/tareas
       def create
-        area = current_user.areas.find_by(id: params[:area_id])
-        return render_field_error(:area_id, "debe ser un área tuya") unless area
+        # Busca el área asegurando que sea del usuario actual
+        area = current_user.areas.find(params[:tarea][:area_id])
+        
+        # Creamos la tarea vinculada a esa área
+        tarea = area.tareas.new(tarea_params.except(:area_id))
 
-        tarea = area.tareas.create!(tarea_params)
-        render json: tarea_json(tarea), status: :created
+        if tarea.save
+          render json: tarea, status: :created
+        else
+          render json: { errors: tarea.errors.messages }, status: :unprocessable_entity
+        end
+      rescue ActiveRecord::RecordNotFound
+        render json: { errors: { area: ["no válida o no te pertenece"] } }, status: :unprocessable_entity
       end
 
       # PATCH/PUT /api/v1/tareas/:id
       def update
-        @tarea.assign_attributes(tarea_params)
-        if params.key?(:area_id)
-          area = current_user.areas.find_by(id: params[:area_id])
-          return render_field_error(:area_id, "debe ser un área tuya") unless area
-
-          @tarea.area = area
+        if params[:tarea][:area_id].present?
+          current_user.areas.find(params[:tarea][:area_id])
         end
-        @tarea.save!
-        render json: tarea_json(@tarea)
+
+        if @tarea.update(tarea_params)
+          render json: @tarea, status: :ok
+        else
+          render json: { errors: @tarea.errors.messages }, status: :unprocessable_entity
+        end
+      rescue ActiveRecord::RecordNotFound
+        render json: { errors: { area: ["no válida o no te pertenece"] } }, status: :unprocessable_entity
       end
 
       # DELETE /api/v1/tareas/:id
       def destroy
-        @tarea.destroy!
+        @tarea.destroy
         head :no_content
       end
 
       private
 
       def set_tarea
-        @tarea = current_user.tareas.find(params[:id])
+        @tarea = Tarea.joins(:area).where(areas: { user_id: current_user.id }).find(params[:id])
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: 'Tarea no encontrada' }, status: :not_found
       end
 
       def tarea_params
-        params.permit(:titulo, :descripcion, :fecha_limite, :prioridad, :estado, :estimado_minutos)
-      end
-
-      def tarea_json(tarea)
-        tarea.as_json(only: %i[id titulo descripcion fecha_limite prioridad estado estimado_minutos area_id created_at updated_at])
-             .merge("area" => tarea.area.as_json(only: %i[id nombre tipo color]))
+        params.require(:tarea).permit(:titulo, :fecha_limite, :prioridad, :estado, :estimado_minutos, :area_id)
       end
     end
   end
