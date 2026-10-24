@@ -83,6 +83,4 @@ test:
 #
 production:
   <<: *default
-  database: foco_api_production
-  username: foco_api
-  password: <%= ENV["FOCO_API_DATABASE_PASSWORD"] %>
+  url: <%= ENV['DATABASE_URL'] %>
