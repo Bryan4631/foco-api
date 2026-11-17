@@ -8,6 +8,6 @@ class CreateAreas < ActiveRecord::Migration[7.1]
       t.timestamps
       t.check_constraint "tipo IN ('estudio','emprendimiento','trabajo','personal')", name: "areas_tipo_check"
     end
-    add_index :areas, [:user_id, :nombre], unique: true
+    add_index :areas, [ :user_id, :nombre ], unique: true
   end
 end

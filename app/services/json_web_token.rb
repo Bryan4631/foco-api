@@ -14,7 +14,7 @@ class JsonWebToken
         iat: Time.current.to_i,
         exp: EXPIRATION.from_now.to_i
       }
-      [JWT.encode(payload, secret, ALGORITHM), payload]
+      [ JWT.encode(payload, secret, ALGORITHM), payload ]
     end
 
     # Lanza JWT::ExpiredSignature o JWT::DecodeError si el token no sirve

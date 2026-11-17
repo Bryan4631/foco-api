@@ -1,8 +1,12 @@
 #!/bin/bash -e
 
-# If running the rails server then create or migrate existing database
+# If running the rails server then migrate the existing database.
+# Se usa db:migrate y no db:prepare para que no corra db/seeds.rb en produccion (crea el
+# usuario demo@foco.cl con contrasena conocida). La base debe existir (se crea una vez en
+# el servidor); aqui solo se aplican migraciones. Para cargar los datos demo a proposito:
+#   docker exec <contenedor> ./bin/rails db:seed
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare
+  ./bin/rails db:migrate
 fi
 
 exec "${@}"

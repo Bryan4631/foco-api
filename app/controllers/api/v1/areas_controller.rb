@@ -1,7 +1,7 @@
 module Api
   module V1
     class AreasController < BaseController
-      before_action :set_area, only: [:show, :update, :destroy]
+      before_action :set_area, only: [ :show, :update, :destroy ]
 
       # GET /api/v1/areas
       def index
@@ -50,7 +50,7 @@ module Api
         # Busca el área solo dentro de las áreas del usuario actual (Seguridad)
         @area = current_user.areas.find(params[:id])
       rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Área no encontrada' }, status: :not_found
+        render json: { error: "Área no encontrada" }, status: :not_found
       end
 
       def area_params

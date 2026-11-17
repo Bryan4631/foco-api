@@ -7,7 +7,7 @@ module Api
       private
 
       def render_field_error(field, message)
-        render json: { error: "Datos inválidos", errors: { field => [message] } }, status: 422
+        render json: { error: "Datos inválidos", errors: { field => [ message ] } }, status: 422
       end
     end
   end

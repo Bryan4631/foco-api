@@ -1,7 +1,7 @@
 module Api
   module V1
     class TareasController < BaseController
-      before_action :set_tarea, only: [:show, :update, :destroy]
+      before_action :set_tarea, only: [ :show, :update, :destroy ]
 
       # GET /api/v1/tareas
       def index
@@ -18,7 +18,7 @@ module Api
       def create
         # Busca el área asegurando que sea del usuario actual
         area = current_user.areas.find(params[:tarea][:area_id])
-        
+
         # Creamos la tarea vinculada a esa área
         tarea = area.tareas.new(tarea_params.except(:area_id))
 
@@ -28,7 +28,7 @@ module Api
           render json: { errors: tarea.errors.messages }, status: :unprocessable_entity
         end
       rescue ActiveRecord::RecordNotFound
-        render json: { errors: { area: ["no válida o no te pertenece"] } }, status: :unprocessable_entity
+        render json: { errors: { area: [ "no válida o no te pertenece" ] } }, status: :unprocessable_entity
       end
 
       # PATCH/PUT /api/v1/tareas/:id
@@ -43,7 +43,7 @@ module Api
           render json: { errors: @tarea.errors.messages }, status: :unprocessable_entity
         end
       rescue ActiveRecord::RecordNotFound
-        render json: { errors: { area: ["no válida o no te pertenece"] } }, status: :unprocessable_entity
+        render json: { errors: { area: [ "no válida o no te pertenece" ] } }, status: :unprocessable_entity
       end
 
       # DELETE /api/v1/tareas/:id
@@ -57,7 +57,7 @@ module Api
       def set_tarea
         @tarea = Tarea.joins(:area).where(areas: { user_id: current_user.id }).find(params[:id])
       rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Tarea no encontrada' }, status: :not_found
+        render json: { error: "Tarea no encontrada" }, status: :not_found
       end
 
       def tarea_params
