@@ -1,7 +1,7 @@
 module Api
   module V1
     class BloquesController < BaseController
-      before_action :set_bloque, only: [:show, :update, :destroy]
+      before_action :set_bloque, only: [ :show, :update, :destroy ]
 
       def index
         bloques = Bloque.joins(:area).where(areas: { user_id: current_user.id }).order(dia_semana: :asc)
@@ -18,7 +18,7 @@ module Api
           render json: { errors: bloque.errors.messages }, status: :unprocessable_entity
         end
       rescue ActiveRecord::RecordNotFound
-        render json: { errors: { area: ["no válida o no te pertenece"] } }, status: :unprocessable_entity
+        render json: { errors: { area: [ "no válida o no te pertenece" ] } }, status: :unprocessable_entity
       end
 
       def update
@@ -42,7 +42,7 @@ module Api
       def set_bloque
         @bloque = Bloque.joins(:area).where(areas: { user_id: current_user.id }).find(params[:id])
       rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Bloque no encontrado' }, status: :not_found
+        render json: { error: "Bloque no encontrado" }, status: :not_found
       end
 
       def bloque_params

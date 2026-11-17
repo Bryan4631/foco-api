@@ -6,10 +6,10 @@ class Area < ApplicationRecord
 
   # Validaciones
   validates :nombre, presence: true, uniqueness: { scope: :user_id, message: "ya existe en tus áreas" }
-  
+
   # Validamos que el tipo sea uno de los permitidos en tus seeds
-  validates :tipo, presence: true, inclusion: { 
-    in: %w[estudio emprendimiento trabajo personal], 
-    message: "no es un tipo válido" 
+  validates :tipo, presence: true, inclusion: {
+    in: %w[estudio emprendimiento trabajo personal],
+    message: "no es un tipo válido"
   }
 end
