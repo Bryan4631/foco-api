@@ -6,7 +6,7 @@
 //
 // Flujo:
 //   Checkout -> Test DB -> Install deps -> Lint -> Security -> Test -> Build image
-//   (solo rama `main`) -> Deploy -> Health Check
+//   (solo rama `production`) -> Deploy -> Health Check
 //
 // Produccion: el contenedor se publica en 127.0.0.1:4108 y el reverse proxy del servidor
 // (Nginx + Certbot) expone https://apifoco.frubilarz.cl hacia ese puerto.
@@ -116,7 +116,7 @@ pipeline {
         }
 
         stage('Deploy') {
-            when { branch 'main' }
+            when { branch 'production' }
             steps {
                 withCredentials([
                     string(credentialsId: 'foco-database-url',    variable: 'PROD_DATABASE_URL'),
@@ -140,7 +140,7 @@ pipeline {
         }
 
         stage('Health Check') {
-            when { branch 'main' }
+            when { branch 'production' }
             steps {
                 // El curl corre DENTRO del contenedor: el 127.0.0.1 de Jenkins no es el del host.
                 // production.rb tiene assume_ssl = true, asi que /up responde 200 sin cabeceras
