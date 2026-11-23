@@ -12,6 +12,6 @@ class CreateBloques < ActiveRecord::Migration[7.1]
       t.check_constraint "hora_fin ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'", name: "bloques_fin_check"
       t.check_constraint "hora_fin > hora_inicio", name: "bloques_orden_check"
     end
-    add_index :bloques, [:area_id, :dia_semana]
+    add_index :bloques, [ :area_id, :dia_semana ]
   end
 end

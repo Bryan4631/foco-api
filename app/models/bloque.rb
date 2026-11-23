@@ -4,7 +4,7 @@ class Bloque < ApplicationRecord
   # Validaciones básicas
   validates :titulo, presence: true
   validates :dia_semana, presence: true, inclusion: { in: 1..7, message: "debe ser un día válido (1=Lunes, 7=Domingo)" }
-  
+
   # Validación personalizada (Regla de negocio)
   validate :hora_fin_posterior_a_inicio
 
