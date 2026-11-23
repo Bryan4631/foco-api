@@ -92,7 +92,7 @@ pipeline {
                                 sh 'ruby bin/rubocop'
                             }
                             stage('Security') {
-                                sh 'ruby bin/brakeman --no-pager'
+                                sh 'bundle exec brakeman --no-pager'  // sin --ensure-latest de bin/brakeman
                                 sh 'ruby bin/bundler-audit'
                             }
                             stage('Test') {
