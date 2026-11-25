@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_24_000005) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_25_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,7 +23,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_24_000005) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "nombre"], name: "index_areas_on_user_id_and_nombre", unique: true
     t.index ["user_id"], name: "index_areas_on_user_id"
-    t.check_constraint "tipo::text = ANY (ARRAY['estudio'::character varying, 'emprendimiento'::character varying, 'trabajo'::character varying, 'personal'::character varying]::text[])", name: "areas_tipo_check"
+    t.check_constraint "tipo::text = ANY (ARRAY['estudio'::character varying::text, 'emprendimiento'::character varying::text, 'trabajo'::character varying::text, 'personal'::character varying::text])", name: "areas_tipo_check"
   end
 
   create_table "bloques", force: :cascade do |t|
@@ -64,9 +64,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_24_000005) do
     t.index ["area_id"], name: "index_tareas_on_area_id"
     t.index ["estado"], name: "index_tareas_on_estado"
     t.index ["fecha_limite"], name: "index_tareas_on_fecha_limite"
-    t.check_constraint "estado::text = ANY (ARRAY['pendiente'::character varying, 'en_curso'::character varying, 'hecha'::character varying]::text[])", name: "tareas_estado_check"
+    t.check_constraint "estado::text = ANY (ARRAY['pendiente'::character varying::text, 'en_curso'::character varying::text, 'hecha'::character varying::text])", name: "tareas_estado_check"
     t.check_constraint "estimado_minutos IS NULL OR estimado_minutos > 0", name: "tareas_estimado_check"
-    t.check_constraint "prioridad::text = ANY (ARRAY['baja'::character varying, 'media'::character varying, 'alta'::character varying]::text[])", name: "tareas_prioridad_check"
+    t.check_constraint "prioridad::text = ANY (ARRAY['baja'::character varying::text, 'media'::character varying::text, 'alta'::character varying::text])", name: "tareas_prioridad_check"
   end
 
   create_table "users", force: :cascade do |t|
@@ -75,7 +75,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_24_000005) do
     t.string "password_digest", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "rol", default: "usuario", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["rol"], name: "index_users_on_rol"
+    t.check_constraint "rol::text = ANY (ARRAY['usuario'::character varying::text, 'admin'::character varying::text])", name: "users_rol_check"
   end
 
   add_foreign_key "areas", "users"

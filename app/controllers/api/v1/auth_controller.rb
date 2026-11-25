@@ -43,7 +43,7 @@ module Api
 
       # Nunca se expone password_digest
       def user_json(user)
-        user.as_json(only: %i[id nombre email])
+        user.as_json(only: %i[id nombre email rol])
       end
     end
   end

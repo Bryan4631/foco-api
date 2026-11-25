@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::API
+  include Authorization
+
   rescue_from ActiveRecord::RecordNotFound do
     render json: { error: "Recurso no encontrado" }, status: :not_found
   end

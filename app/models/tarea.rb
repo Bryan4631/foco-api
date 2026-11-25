@@ -4,6 +4,9 @@ class Tarea < ApplicationRecord
 
   belongs_to :area
 
+  # Dueño de la tarea = dueño de su área (lo usa la policy de autorización)
+  delegate :user_id, to: :area
+
   validates :titulo, presence: true, length: { maximum: 120 }
   validates :prioridad, inclusion: { in: PRIORIDADES }
   validates :estado, inclusion: { in: ESTADOS }
