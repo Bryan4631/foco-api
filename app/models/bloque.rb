@@ -1,6 +1,9 @@
 class Bloque < ApplicationRecord
   belongs_to :area
 
+  # Dueño del bloque = dueño de su área (lo usa la policy de autorización)
+  delegate :user_id, to: :area
+
   # Validaciones básicas
   validates :titulo, presence: true
   validates :dia_semana, presence: true, inclusion: { in: 1..7, message: "debe ser un día válido (1=Lunes, 7=Domingo)" }

@@ -5,12 +5,13 @@ module Api
 
       # GET /api/v1/areas
       def index
-        areas = current_user.areas.order(created_at: :desc)
-        render json: areas, status: :ok
+        areas = ver_todos? ? Area.all : current_user.areas
+        render json: areas.order(created_at: :desc), status: :ok
       end
 
       # GET /api/v1/areas/:id
       def show
+        authorize!(@area, :show)
         render json: @area, status: :ok
       end
 
@@ -21,13 +22,14 @@ module Api
         if area.save
           render json: area, status: :created
         else
-          # Devuelve los errores de validación en formato JSON para el 422
           render json: { errors: area.errors.messages }, status: :unprocessable_entity
         end
       end
 
       # PATCH/PUT /api/v1/areas/:id
       def update
+        authorize!(@area, :update)
+
         if @area.update(area_params)
           render json: @area, status: :ok
         else
@@ -37,6 +39,8 @@ module Api
 
       # DELETE /api/v1/areas/:id
       def destroy
+        authorize!(@area, :destroy)
+
         if @area.destroy
           head :no_content
         else
@@ -46,15 +50,14 @@ module Api
 
       private
 
+      # Busca el área por id (404 si no existe). Quién puede tocarla lo decide AreaPolicy (403).
       def set_area
-        # Busca el área solo dentro de las áreas del usuario actual (Seguridad)
-        @area = current_user.areas.find(params[:id])
+        @area = Area.find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { error: "Área no encontrada" }, status: :not_found
       end
 
       def area_params
-        # Aquí está la magia: permite que Rails acepte nombre, color y tipo
         params.require(:area).permit(:nombre, :color, :tipo)
       end
     end
