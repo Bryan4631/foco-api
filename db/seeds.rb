@@ -1,7 +1,15 @@
 user = User.find_or_initialize_by(email: "demo@foco.cl")
 user.nombre = "Usuario Demo"
 user.password = "demo12345"
+user.rol = "usuario"
 user.save!
+
+# Usuario de prueba con rol administrador (Tarea 2: roles y autorización)
+admin = User.find_or_initialize_by(email: "admin@foco.cl")
+admin.nombre = "Administrador Foco"
+admin.password = "admin12345"
+admin.rol = "admin"
+admin.save!
 
 utem     = user.areas.find_or_create_by!(nombre: "UTEM")     { |a| a.tipo = "estudio";         a.color = "#2563eb" }
 cumbrio  = user.areas.find_or_create_by!(nombre: "Cumbrio")  { |a| a.tipo = "emprendimiento"; a.color = "#ff6b4a" }
