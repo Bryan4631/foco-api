@@ -1,0 +1,2 @@
+class TareaPolicy < ApplicationPolicy
+end

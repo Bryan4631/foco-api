@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  ROLES = %w[usuario admin].freeze
+
   has_secure_password
 
   has_many :areas, dependent: :destroy
@@ -12,4 +14,9 @@ class User < ApplicationRecord
                     uniqueness: { case_sensitive: false },
                     format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password, length: { minimum: 8 }, allow_nil: true
+  validates :rol, inclusion: { in: ROLES, message: "no es un rol válido" }
+
+  def admin?
+    rol == "admin"
+  end
 end

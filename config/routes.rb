@@ -11,6 +11,9 @@ Rails.application.routes.draw do
       resources :areas,   except: %i[new edit]
       resources :tareas,  except: %i[new edit]
       resources :bloques, except: %i[new edit]
+
+      # Solo administrador (ver UserPolicy)
+      resources :usuarios, only: %i[index update]
     end
   end
 end
